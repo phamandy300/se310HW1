@@ -29,6 +29,10 @@ package maze;
 
 import maze.ui.MazeViewer;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 /**
  * 
  * @author Sunny
@@ -50,34 +54,49 @@ public class SimpleMazeGame
 
 	}
 
-	public static Maze loadMaze(final String path)
+	public static Maze loadMaze(final String path) // NSEW
 	{
 		Maze maze = new Maze();
 		System.out.println("Please load a maze from the file!");
+
+		try {
+			File mazeFile = new File(path);
+			Scanner myReader = new Scanner(mazeFile);
+			while (myReader.hasNextLine()) {
+				String data = myReader.nextLine();
+				System.out.println(data);
+			}
+			myReader.close();
+		} catch (FileNotFoundException e) {
+			System.out.println("An error occurred.");
+		}
+
 		return maze;
 	}
 
 	public static void main(String[] args)
 	{
-		Maze maze = createMaze();
+//		Maze maze = createMaze();
+//
+//		Wall mazeWall = new Wall();
+//
+//		Room r1 = new Room(0);
+//		r1.setSide(Direction.South, mazeWall);
+//		r1.setSide(Direction.West, mazeWall);
+//		r1.setSide(Direction.East, mazeWall);
+//		maze.addRoom(r1);
+//
+//		Room r2 = new Room(1);
+//		r2.setSide(Direction.North, mazeWall);
+//		r2.setSide(Direction.West, mazeWall);
+//		r2.setSide(Direction.East, mazeWall);
+//		maze.addRoom(r2);
+//
+//		Door d1 = new Door(r1, r2);
+//		r1.setSide(Direction.North, d1);
+//		r2.setSide(Direction.South, d1);
 
-		Wall mazeWall = new Wall();
-
-		Room r1 = new Room(0);
-		r1.setSide(Direction.South, mazeWall);
-		r1.setSide(Direction.West, mazeWall);
-		r1.setSide(Direction.East, mazeWall);
-		maze.addRoom(r1);
-
-		Room r2 = new Room(1);
-		r2.setSide(Direction.North, mazeWall);
-		r2.setSide(Direction.West, mazeWall);
-		r2.setSide(Direction.East, mazeWall);
-		maze.addRoom(r2);
-
-		Door d1 = new Door(r1, r2);
-		r1.setSide(Direction.North, d1);
-		r2.setSide(Direction.South, d1);
+		Maze maze = loadMaze("../../small.maze");
 
 	    MazeViewer viewer = new MazeViewer(maze);
 	    viewer.run();
