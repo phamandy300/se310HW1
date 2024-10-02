@@ -60,6 +60,25 @@ public class SimpleMazeGame
 	public static void main(String[] args)
 	{
 		Maze maze = createMaze();
+
+		Wall mazeWall = new Wall();
+
+		Room r1 = new Room(0);
+		r1.setSide(Direction.South, mazeWall);
+		r1.setSide(Direction.West, mazeWall);
+		r1.setSide(Direction.East, mazeWall);
+		maze.addRoom(r1);
+
+		Room r2 = new Room(1);
+		r2.setSide(Direction.North, mazeWall);
+		r2.setSide(Direction.West, mazeWall);
+		r2.setSide(Direction.East, mazeWall);
+		maze.addRoom(r2);
+
+		Door d1 = new Door(r1, r2);
+		r1.setSide(Direction.North, d1);
+		r2.setSide(Direction.South, d1);
+
 	    MazeViewer viewer = new MazeViewer(maze);
 	    viewer.run();
 	}
