@@ -54,6 +54,29 @@ public class SimpleMazeGame
 
 	}
 
+	public static Room createRoom(String roomNumber, String north, String south, String east, String west) {
+		Room r = new Room(Integer.parseInt(roomNumber));
+		Wall mazeWall = new Wall();
+
+		if (north.equals("wall")) {
+			r.setSide(Direction.North, mazeWall);
+		}
+
+		if (south.equals("wall")) {
+			r.setSide(Direction.South, mazeWall);
+		}
+
+		if (east.equals("wall")) {
+			r.setSide(Direction.East, mazeWall);
+		}
+
+		if (west.equals("wall")) {
+			r.setSide(Direction.West, mazeWall);
+		}
+
+		return r;
+	}
+
 	public static Maze loadMaze(final String path) // NSEW
 	{
 		Maze maze = new Maze();
@@ -64,11 +87,17 @@ public class SimpleMazeGame
 			Scanner myReader = new Scanner(mazeFile);
 			while (myReader.hasNextLine()) {
 				String data = myReader.nextLine();
-				System.out.println(data);
+				String[] dataList = data.split(" ");
+				if (dataList[0].equals("room")) {
+					Room r = createRoom(dataList[1], dataList[2], dataList[3], dataList[4], dataList[5]);
+					maze.addRoom(r);
+				} else if (dataList[0].equals("door")) {
+					continue;
+				}
 			}
 			myReader.close();
 		} catch (FileNotFoundException e) {
-			System.out.println("An error occurred.");
+			System.out.println("An error occurred while trying to open the file.");
 		}
 
 		return maze;
@@ -96,7 +125,7 @@ public class SimpleMazeGame
 //		r1.setSide(Direction.North, d1);
 //		r2.setSide(Direction.South, d1);
 
-		Maze maze = loadMaze("../../small.maze");
+		Maze maze = loadMaze("test.maze");
 
 	    MazeViewer viewer = new MazeViewer(maze);
 	    viewer.run();
