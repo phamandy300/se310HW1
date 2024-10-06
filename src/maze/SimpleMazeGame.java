@@ -34,6 +34,7 @@ import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 /**
  * 
@@ -56,7 +57,7 @@ public class SimpleMazeGame
 
 	}
 
-	public static Room createRoom(Integer roomNumber, String north, String south, String east, String west) {
+	public static Room createRoom(Map<Integer, Room> roomMap, Integer roomNumber, String north, String south, String east, String west) {
 		Room r = new Room(roomNumber);
 		Wall mazeWall = new Wall();
 
@@ -76,30 +77,61 @@ public class SimpleMazeGame
 			r.setSide(Direction.West, mazeWall);
 		}
 
+		roomMap.put(roomNumber, r);
+
 		return r;
 	}
 
-	public static void createDoor(Map<Integer, Room> roomMap, Integer roomNum1, Integer roomNum2, String state) {
+	public static void createDoor(Map<Integer, Room> roomMap, Map<String, Door> doorMap, String doorName, Integer roomNum1, Integer roomNum2, String state) {
 		Room r1 = roomMap.get(roomNum1);
 		Room r2 = roomMap.get(roomNum2);
 
 		Door d = new Door(r1, r2);
 
-		for (Direction dir : Direction.values()) {
-			if (r1.getSide(dir) == null) {
-				r1.setSide(dir, d);
-				break;
+		d.setOpen(state.equals("open"));
+
+		doorMap.put(doorName, d);
+	}
+
+	public static void connectRoom(Map<Integer, Room> roomMap, Map<String, Door> doorMap, Integer roomNumber, String north, String south, String east, String west) {
+		Room r = roomMap.get(roomNumber);
+
+		if (Pattern.matches("^[0-9]+$", north)) {
+			Integer sideRoomNum = Integer.parseInt(north);
+			if (roomMap.containsKey(sideRoomNum)) {
+				r.setSide(Direction.North, roomMap.get(sideRoomNum));
 			}
+		} else if (Pattern.matches("d[0-9]+", north)) {
+			r.setSide(Direction.North, doorMap.get(north));
 		}
 
-		for (Direction dir : Direction.values()) {
-			if (r2.getSide(dir) == null) {
-				r2.setSide(dir, d);
-				break;
+		if (Pattern.matches("^[0-9]+$", south)) {
+			Integer sideRoomNum = Integer.parseInt(south);
+			if (roomMap.containsKey(sideRoomNum)) {
+				r.setSide(Direction.South, roomMap.get(sideRoomNum));
 			}
+		} else if (Pattern.matches("d[0-9]+", south)) {
+			r.setSide(Direction.South, doorMap.get(south));
 		}
 
-        d.setOpen(state.equals("open"));
+		if (Pattern.matches("^[0-9]+$", east)) {
+			Integer sideRoomNum = Integer.parseInt(east);
+			if (roomMap.containsKey(sideRoomNum)) {
+				r.setSide(Direction.East, roomMap.get(sideRoomNum));
+			}
+		} else if (Pattern.matches("d[0-9]+", east)) {
+			r.setSide(Direction.East, doorMap.get(east));
+		}
+
+		if (Pattern.matches("^[0-9]+$", west)) {
+			Integer sideRoomNum = Integer.parseInt(west);
+			if (roomMap.containsKey(sideRoomNum)) {
+				r.setSide(Direction.West, roomMap.get(sideRoomNum));
+			}
+		} else if (Pattern.matches("d[0-9]+", west)) {
+			r.setSide(Direction.West, doorMap.get(west));
+		}
+
 	}
 
 	public static Maze loadMaze(final String path) // NSEW
@@ -108,9 +140,12 @@ public class SimpleMazeGame
 		System.out.println("Please load a maze from the file!");
 
 		try {
+			Map<Integer, Room> roomMap = new HashMap<>();
+			Map<String, Door> doorMap = new HashMap<>();
+
 			File mazeFile = new File(path);
 			Scanner myReader = new Scanner(mazeFile);
-			Map<Integer, Room> roomMap = new HashMap<>();
+
 			while (myReader.hasNextLine()) {
 				String data = myReader.nextLine();
 				String[] dataList = data.split(" ");
@@ -120,24 +155,44 @@ public class SimpleMazeGame
 					String south = dataList[3];
 					String east = dataList[4];
 					String west = dataList[5];
-					Room r = createRoom(roomNumber, north, south, east, west);
+					Room r = createRoom(roomMap, roomNumber, north, south, east, west);
 
 					maze.addRoom(r);
 
-					roomMap.put(roomNumber, r);
-
 				} else if (dataList[0].equals("door")) {
+					String doorName = dataList[1];
 					Integer roomNum1 = Integer.parseInt(dataList[2]);
 					Integer roomNum2 = Integer.parseInt(dataList[3]);
 					String state = dataList[4];
 
-					createDoor(roomMap, roomNum1, roomNum2, state);
+					createDoor(roomMap, doorMap, doorName, roomNum1, roomNum2, state);
 				}
 			}
 
-			maze.setCurrentRoom(0);
+			myReader.close();
+
+			myReader = new Scanner(mazeFile);
+
+			while (myReader.hasNextLine()) {
+				String data = myReader.nextLine();
+				String[] dataList = data.split(" ");
+				if (dataList[0].equals("room")) {
+					Integer roomNumber = Integer.parseInt(dataList[1]);
+					String north = dataList[2];
+					String south = dataList[3];
+					String east = dataList[4];
+					String west = dataList[5];
+
+					connectRoom(roomMap, doorMap, roomNumber, north, south, east, west);
+				} else {
+					break;
+				}
+			}
 
 			myReader.close();
+
+			maze.setCurrentRoom(0);
+
 		} catch (FileNotFoundException e) {
 			System.out.println("An error occurred while trying to open the file.");
 		}
@@ -147,27 +202,7 @@ public class SimpleMazeGame
 
 	public static void main(String[] args)
 	{
-//		Maze maze = createMaze();
-//
-//		Wall mazeWall = new Wall();
-//
-//		Room r1 = new Room(0);
-//		r1.setSide(Direction.South, mazeWall);
-//		r1.setSide(Direction.West, mazeWall);
-//		r1.setSide(Direction.East, mazeWall);
-//		maze.addRoom(r1);
-//
-//		Room r2 = new Room(1);
-//		r2.setSide(Direction.North, mazeWall);
-//		r2.setSide(Direction.West, mazeWall);
-//		r2.setSide(Direction.East, mazeWall);
-//		maze.addRoom(r2);
-//
-//		Door d1 = new Door(r1, r2);
-//		r1.setSide(Direction.North, d1);
-//		r2.setSide(Direction.South, d1);
-//
-//
+
 		Maze maze = loadMaze("large.maze");
 
 	    MazeViewer viewer = new MazeViewer(maze);
