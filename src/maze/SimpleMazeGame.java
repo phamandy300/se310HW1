@@ -57,7 +57,13 @@ public class SimpleMazeGame
 
 	}
 
-	public static Room createRoom(Map<Integer, Room> roomMap, Integer roomNumber, String north, String south, String east, String west) {
+	public static Room createRoom(Map<Integer, Room> roomMap, String[] dataList) {
+		int roomNumber = Integer.parseInt(dataList[1]);
+		String north = dataList[2];
+		String south = dataList[3];
+		String east = dataList[4];
+		String west = dataList[5];
+
 		Room r = new Room(roomNumber);
 		Wall mazeWall = new Wall();
 
@@ -82,7 +88,12 @@ public class SimpleMazeGame
 		return r;
 	}
 
-	public static void createDoor(Map<Integer, Room> roomMap, Map<String, Door> doorMap, String doorName, Integer roomNum1, Integer roomNum2, String state) {
+	public static void createDoor(Map<Integer, Room> roomMap, Map<String, Door> doorMap, String[] dataList) {
+		String doorName = dataList[1];
+		int roomNum1 = Integer.parseInt(dataList[2]);
+		int roomNum2 = Integer.parseInt(dataList[3]);
+		String state = dataList[4];
+
 		Room r1 = roomMap.get(roomNum1);
 		Room r2 = roomMap.get(roomNum2);
 
@@ -93,11 +104,17 @@ public class SimpleMazeGame
 		doorMap.put(doorName, d);
 	}
 
-	public static void connectRoom(Map<Integer, Room> roomMap, Map<String, Door> doorMap, Integer roomNumber, String north, String south, String east, String west) {
+	public static void connectRoom(Map<Integer, Room> roomMap, Map<String, Door> doorMap, String[] dataList) {
+		int roomNumber = Integer.parseInt(dataList[1]);
+		String north = dataList[2];
+		String south = dataList[3];
+		String east = dataList[4];
+		String west = dataList[5];
+
 		Room r = roomMap.get(roomNumber);
 
 		if (Pattern.matches("^[0-9]+$", north)) {
-			Integer sideRoomNum = Integer.parseInt(north);
+			int sideRoomNum = Integer.parseInt(north);
 			if (roomMap.containsKey(sideRoomNum)) {
 				r.setSide(Direction.North, roomMap.get(sideRoomNum));
 			}
@@ -106,7 +123,7 @@ public class SimpleMazeGame
 		}
 
 		if (Pattern.matches("^[0-9]+$", south)) {
-			Integer sideRoomNum = Integer.parseInt(south);
+			int sideRoomNum = Integer.parseInt(south);
 			if (roomMap.containsKey(sideRoomNum)) {
 				r.setSide(Direction.South, roomMap.get(sideRoomNum));
 			}
@@ -115,7 +132,7 @@ public class SimpleMazeGame
 		}
 
 		if (Pattern.matches("^[0-9]+$", east)) {
-			Integer sideRoomNum = Integer.parseInt(east);
+			int sideRoomNum = Integer.parseInt(east);
 			if (roomMap.containsKey(sideRoomNum)) {
 				r.setSide(Direction.East, roomMap.get(sideRoomNum));
 			}
@@ -124,7 +141,7 @@ public class SimpleMazeGame
 		}
 
 		if (Pattern.matches("^[0-9]+$", west)) {
-			Integer sideRoomNum = Integer.parseInt(west);
+			int sideRoomNum = Integer.parseInt(west);
 			if (roomMap.containsKey(sideRoomNum)) {
 				r.setSide(Direction.West, roomMap.get(sideRoomNum));
 			}
@@ -150,22 +167,12 @@ public class SimpleMazeGame
 				String data = myReader.nextLine();
 				String[] dataList = data.split(" ");
 				if (dataList[0].equals("room")) {
-					Integer roomNumber = Integer.parseInt(dataList[1]);
-					String north = dataList[2];
-					String south = dataList[3];
-					String east = dataList[4];
-					String west = dataList[5];
-					Room r = createRoom(roomMap, roomNumber, north, south, east, west);
+					Room r = createRoom(roomMap, dataList);
 
 					maze.addRoom(r);
 
 				} else if (dataList[0].equals("door")) {
-					String doorName = dataList[1];
-					Integer roomNum1 = Integer.parseInt(dataList[2]);
-					Integer roomNum2 = Integer.parseInt(dataList[3]);
-					String state = dataList[4];
-
-					createDoor(roomMap, doorMap, doorName, roomNum1, roomNum2, state);
+					createDoor(roomMap, doorMap, dataList);
 				}
 			}
 
@@ -177,13 +184,7 @@ public class SimpleMazeGame
 				String data = myReader.nextLine();
 				String[] dataList = data.split(" ");
 				if (dataList[0].equals("room")) {
-					Integer roomNumber = Integer.parseInt(dataList[1]);
-					String north = dataList[2];
-					String south = dataList[3];
-					String east = dataList[4];
-					String west = dataList[5];
-
-					connectRoom(roomMap, doorMap, roomNumber, north, south, east, west);
+					connectRoom(roomMap, doorMap, dataList);
 				} else {
 					break;
 				}
